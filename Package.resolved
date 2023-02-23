@@ -1,0 +1,23 @@
+{
+  "pins" : [
+    {
+      "identity" : "jazz",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/JazzFramework/Jazz.git",
+      "state" : {
+        "revision" : "513150c901a3e0a6a7954afa3dd8ceadd4915e66",
+        "version" : "0.0.8"
+      }
+    },
+    {
+      "identity" : "osinfo",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/MarcoEidinger/OSInfo.git",
+      "state" : {
+        "revision" : "2744ab10173549f0b203af8550dd72acfdd31c5f",
+        "version" : "1.0.0"
+      }
+    }
+  ],
+  "version" : 2
+}

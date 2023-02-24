@@ -10,20 +10,20 @@ public final class HealthCheckInitializer: ServerInitializer {
             .with(decoder: HealthCheckConfigV1JsonCodec());
 
         _ = try app
-            .wireUp(transcoder: { _ in return HealthCheckV1JsonCodec(); })
-            .wireUp(healthCheckProcessor: { _ in return DefaultHealthCheckProcessor(); })
-            .wireUp(healthCheckMetricCollector: { _ in return DefaultHealthCheckMetricCollector(); })
-            .wireUp(singleton: { sp in
-                return HealthCheckServiceImpl(
+            .wireUp(transcoder: { _, _ in HealthCheckV1JsonCodec() })
+            .wireUp(healthCheckProcessor: { _, _ in DefaultHealthCheckProcessor() })
+            .wireUp(healthCheckMetricCollector: { _, _ in DefaultHealthCheckMetricCollector() })
+            .wireUp(singleton: { _, sp in
+                HealthCheckServiceImpl(
                     healthCheckProcessors: try await sp.fetchTypes(),
                     healthCheckMetricCollectors: try await sp.fetchTypes()
-                ) as HealthCheckService;
+                ) as HealthCheckService
             })
-            .wireUp(controller: { sp in
+            .wireUp(controller: { configuration, sp in
                 return await HealthCheckController(
-                    configuration: try await sp.fetchType(),
+                    configuration: await configuration.fetch() ?? HealthCheckConfig(route: nil),
                     service: try await sp.fetchType()
-                );
+                )
             });
     }
 }

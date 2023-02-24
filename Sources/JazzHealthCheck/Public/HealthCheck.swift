@@ -1,23 +1,16 @@
 public final class HealthCheck {
-    private final let data: [String:(HealthCheckStatus, String)];
+    private final let processorResults: [String:HealthCheckProcessorResult];
     private final let metrics: [String:String];
+    private final let status: HealthCheckStatus;
 
-    private var statusCache: HealthCheckStatus? = nil;
-
-    internal init(data: [String:(HealthCheckStatus, String)], metrics: [String:String]) {
-        self.data = data;
+    internal init(processorResults: [String:HealthCheckProcessorResult], metrics: [String:String]) {
+        self.processorResults = processorResults;
         self.metrics = metrics;
-    }
-
-    public final func getStatus() -> HealthCheckStatus {
-        if let statusCache = statusCache {
-            return statusCache;
-        }
 
         var status: HealthCheckStatus = .healthy;
 
-        for (_, processorValue) in data {
-            let processorStatus: HealthCheckStatus = processorValue.0;
+        for (_, processorResult) in processorResults {
+            let processorStatus: HealthCheckStatus = processorResult.getStatus();
 
             if (processorStatus == .warning && status == .healthy) {
                 status = .warning;
@@ -26,16 +19,10 @@ public final class HealthCheck {
             }
         }
 
-        statusCache = status;
-
-        return status;
+        self.status = status;
     }
 
-    public final func getData() -> [String:(HealthCheckStatus, String)] {
-        return data;
-    }
-
-    public final func getMetrics() -> [String:String] {
-        return metrics;
-    }
+    public final func getStatus() -> HealthCheckStatus { status }
+    public final func getProcessorResults() -> [String:HealthCheckProcessorResult] { processorResults }
+    public final func getMetrics() -> [String:String] { metrics }
 }

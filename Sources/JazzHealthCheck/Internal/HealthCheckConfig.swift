@@ -5,7 +5,5 @@ internal final class HealthCheckConfig {
         self.route = route;
     }
 
-    internal final func getRoute() -> String {
-        return route ?? Constants.DEFAULT_ROUTE;
-    }
+    internal final func getRoute() -> String { route ?? Constants.DEFAULT_ROUTE }
 }

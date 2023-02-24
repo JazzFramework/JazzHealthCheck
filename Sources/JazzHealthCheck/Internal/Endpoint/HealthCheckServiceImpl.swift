@@ -11,26 +11,36 @@ internal final class HealthCheckServiceImpl: HealthCheckService {
     }
 
     public final func getHealthCheck() async -> HealthCheck {
-        var data: [String:(HealthCheckStatus,String)] = [:];
+        HealthCheck(
+            processorResults: await getProcessorResults(),
+            metrics: await getMetrics()
+        )
+    }
+
+    private final func getProcessorResults() async -> [String:HealthCheckProcessorResult] {
+        var processorResults: [String:HealthCheckProcessorResult] = [:];
 
         for healthCheckProcessor in healthCheckProcessors {
-            let processorName = String(describing: healthCheckProcessor);
+            let processorName: String = String(describing: healthCheckProcessor);
+            let processorResult: HealthCheckProcessorResult = await healthCheckProcessor.run();
 
-            let healthCheckProcessorResult: HealthCheckProcessorResult = await healthCheckProcessor.run();
-
-            data[processorName] = (healthCheckProcessorResult.getStatus(), healthCheckProcessorResult.getMessage());
+            processorResults[processorName] = processorResult;
         }
 
+        return processorResults;
+    }
+
+    private final func getMetrics() async -> [String:String] {
         var metrics: [String:String] = [:];
 
         for healthCheckMetricCollector in healthCheckMetricCollectors {
-            let collectorMetrics = await healthCheckMetricCollector.run();
+            let collectorMetrics: [String:String] = await healthCheckMetricCollector.run();
 
             for (key, value) in collectorMetrics {
                 metrics[key] = value;
             }
         }
 
-        return HealthCheck(data: data, metrics: metrics);
+        return metrics;
     }
 }

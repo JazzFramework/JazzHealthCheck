@@ -7,11 +7,6 @@ public final class HealthCheckProcessorResult {
         self.message = message;
     }
 
-    public final func getStatus() -> HealthCheckStatus {
-        return status;
-    }
-
-    public final func getMessage() -> String {
-        return message;
-    }
+    public final func getStatus() -> HealthCheckStatus { status }
+    public final func getMessage() -> String { message }
 }

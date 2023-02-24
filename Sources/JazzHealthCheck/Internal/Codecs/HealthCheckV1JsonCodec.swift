@@ -18,10 +18,10 @@ internal final class HealthCheckV1JsonCodec: JsonCodec<HealthCheck> {
     public override func encodeJson(data: HealthCheck) async -> JsonObject {
         return JsonObjectBuilder()
             .with("status", property: JsonProperty(withData: data.getStatus().rawValue))
-            .with("data", dictionary: data.getData(), logic: { value in
+            .with("data", dictionary: data.getProcessorResults(), logic: { value in
                 return JsonObjectBuilder()
-                    .with("status", property: JsonProperty(withData: value.0.rawValue))
-                    .with("message", property: JsonProperty(withData: value.1))
+                    .with("status", property: JsonProperty(withData: value.getStatus().rawValue))
+                    .with("message", property: JsonProperty(withData: value.getMessage()))
                     .build();
             })
             .with("metrics", dictionary: data.getMetrics(), logic: { value in
@@ -31,7 +31,7 @@ internal final class HealthCheckV1JsonCodec: JsonCodec<HealthCheck> {
     }
 
     public override func decodeJson(data: JsonObject) async -> HealthCheck? {
-        var processorsData: [String:(HealthCheckStatus,String)] = [:];
+        var processorsData: [String:HealthCheckProcessorResult] = [:];
 
         if let processorsInfo = data["data"] as? JsonObject {
             for key in processorsInfo.getKeys() {
@@ -39,9 +39,9 @@ internal final class HealthCheckV1JsonCodec: JsonCodec<HealthCheck> {
                     let status: JsonProperty = processorInfo["status"] as? JsonProperty ?? JsonProperty.Empty;
                     let message: JsonProperty = processorInfo["message"] as? JsonProperty ?? JsonProperty.Empty;
 
-                    processorsData[key] = (
-                        HealthCheckStatus(rawValue: status.getString()) ?? .unhealthy,
-                        message.getString()
+                    processorsData[key] = HealthCheckProcessorResult(
+                        status: HealthCheckStatus(rawValue: status.getString()) ?? .unhealthy,
+                        message: message.getString()
                     );
                 }
             }
@@ -57,6 +57,6 @@ internal final class HealthCheckV1JsonCodec: JsonCodec<HealthCheck> {
             }
         }
 
-        return HealthCheck(data: processorsData, metrics: metricsData);
+        return HealthCheck(processorResults: processorsData, metrics: metricsData);
     }
 }

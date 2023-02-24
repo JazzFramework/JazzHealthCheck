@@ -11,14 +11,10 @@ internal final class HealthCheckServiceImpl: HealthCheckService {
     }
 
     public final func getHealthCheck() async -> HealthCheck {
-        var data: [String:(HealthCheckStatus,String)] = [:];
+        var processorResults: [String:HealthCheckProcessorResult] = [:];
 
         for healthCheckProcessor in healthCheckProcessors {
-            let processorName = String(describing: healthCheckProcessor);
-
-            let healthCheckProcessorResult: HealthCheckProcessorResult = await healthCheckProcessor.run();
-
-            data[processorName] = (healthCheckProcessorResult.getStatus(), healthCheckProcessorResult.getMessage());
+            processorResults[String(describing: healthCheckProcessor)] = await healthCheckProcessor.run();
         }
 
         var metrics: [String:String] = [:];
@@ -31,6 +27,6 @@ internal final class HealthCheckServiceImpl: HealthCheckService {
             }
         }
 
-        return HealthCheck(data: data, metrics: metrics);
+        return HealthCheck(processorResults: processorResults, metrics: metrics);
     }
 }

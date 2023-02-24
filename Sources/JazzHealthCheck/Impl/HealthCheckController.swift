@@ -22,9 +22,6 @@ internal final class HealthCheckController: ApiController {
     public final override func logic(withRequest request: RequestContext) async throws -> ApiControllerResult {
         let healthCheck: HealthCheck = await service.getHealthCheck();
 
-        return ApiControllerResultBuilder()
-            .with(statusCode: 200)
-            .with(body: healthCheck)
-            .build();
+        return ok(body: healthCheck);
     }
 }
